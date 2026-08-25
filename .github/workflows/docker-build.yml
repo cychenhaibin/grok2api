@@ -2,6 +2,8 @@ name: Publish Docker image (Multi-arch)
 
 on:
   push:
+    branches:
+      - main
     tags:
       - '*'
       - '!nightly*'
@@ -52,8 +54,10 @@ jobs:
             fi
             git checkout --detach "refs/tags/$REQUESTED_TAG"
             TAG="$REQUESTED_TAG"
-          else
+          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
             TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="main-${GITHUB_SHA:0:12}"
           fi
 
           if ! [[ "$TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]]; then
