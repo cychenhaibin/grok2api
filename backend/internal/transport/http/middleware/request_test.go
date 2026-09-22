@@ -255,7 +255,7 @@ func TestSecurityHeaders(t *testing.T) {
 	router.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/", nil))
 	for name, expected := range map[string]string{
 		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":        "DENY",
+		"Content-Security-Policy": "frame-ancestors 'self' https://fluxa.camila.qzz.io",
 		"Referrer-Policy":        "no-referrer",
 		"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
 	} {
