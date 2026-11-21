@@ -71,7 +71,7 @@ jobs:
 
   check_ghcr_image:
     name: Build image (${{ matrix.arch }})
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request'
     needs: verify
     strategy:
       fail-fast: false
@@ -105,7 +105,7 @@ jobs:
 
   build_ghcr_image:
     name: Publish image (${{ matrix.arch }})
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs: verify
     permissions:
       contents: read
@@ -144,6 +144,7 @@ jobs:
           tags: |
             type=ref,event=branch,suffix=-${{ matrix.arch }}
             type=ref,event=tag,suffix=-${{ matrix.arch }}
+            type=sha,format=long,suffix=-${{ matrix.arch }}
             type=raw,value=latest-${{ matrix.arch }},enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Login to GHCR
@@ -169,7 +170,7 @@ jobs:
 
   merge:
     name: Merge image
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs:
       - build_ghcr_image
     runs-on: ubuntu-latest
@@ -196,6 +197,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=tag
+            type=sha,format=long
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Login to GHCR
